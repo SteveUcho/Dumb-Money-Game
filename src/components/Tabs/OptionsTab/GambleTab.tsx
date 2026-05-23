@@ -6,6 +6,7 @@ import { useState } from "react";
 import { OptionChart } from "./OptionChart";
 import { AvailableBalance } from "../AvailableBalance";
 import { OrderButton } from "./OrderButton";
+import Image from "next/image";
 
 interface GambleTabProps {
   open: boolean;
@@ -30,16 +31,16 @@ export function GambleTab(props: GambleTabProps) {
 
   const handlePriceChange =
     (setter: React.Dispatch<React.SetStateAction<{ string: string; number: number }>>) =>
-    (value: string) => {
-      let newValue = value.trim();
-      if (newValue === "") {
-        setter({ string: "$0.00", number: 0 });
-        return;
-      }
-      newValue = newValue.replace("$", "");
-      newValue = newValue.replace(/^0+/, "");
-      setter({ string: "$" + newValue, number: Number(newValue) });
-    };
+      (value: string) => {
+        let newValue = value.trim();
+        if (newValue === "") {
+          setter({ string: "$0.00", number: 0 });
+          return;
+        }
+        newValue = newValue.replace("$", "");
+        newValue = newValue.replace(/^0+/, "");
+        setter({ string: "$" + newValue, number: Number(newValue) });
+      };
 
   return (
     <motion.div
@@ -55,7 +56,7 @@ export function GambleTab(props: GambleTabProps) {
     >
       <AvailableBalance />
       <div className="absolute right-4 top-5 text-xl text-gray-500 z-20" onClick={handleClose}>
-        <img src={DotAndCross} alt="Close" className="w-6 h-6" />
+        <Image src={DotAndCross} alt="Close" className="w-6 h-6" />
       </div>
       <TabToggle
         onActiveIndexChange={(index) => setTab(index === 0 ? "call" : "put")}

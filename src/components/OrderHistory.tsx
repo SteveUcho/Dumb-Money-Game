@@ -1,3 +1,5 @@
+"use client";
+
 import { TabToggle } from "./Tabs/TabToggle";
 import { playerSelectedAtom } from "@/utils/atoms";
 import { useSetAtom } from "jotai";

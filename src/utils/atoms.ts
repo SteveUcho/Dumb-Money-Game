@@ -10,3 +10,5 @@ export const darkModeAtom = atomWithStorage<boolean>("darkMode", false);
 export const currentLobbyAtom = atom<string | null>(null);
 export const availableBalanceAtom = atom<number>(10000);
 export const playerSelectedAtom = atom<number | null>(null);
+
+export const showLobbyPasswordModalAtom = atom<string | null>(null);

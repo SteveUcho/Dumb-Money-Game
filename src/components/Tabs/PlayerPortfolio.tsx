@@ -4,6 +4,7 @@ import type { OptionOrder, StockOrder, TabProps } from "@/utils/interfaceTypes";
 import { motion } from "motion/react";
 import { GridHeader } from "../GridHeader";
 import DotAndCross from "@/images/dotAndCross.svg";
+import Image from "next/image";
 
 const orderData: (StockOrder | OptionOrder)[] = [
   {
@@ -46,7 +47,7 @@ export function PlayerPortfolio(props: TabProps) {
       ].join(" ")}
     >
       <div className="absolute right-4 top-4 text-xl text-gray-500 z-20" onClick={handleClose}>
-        <img src={DotAndCross} alt="Close" className="w-6 h-6" />
+        <Image src={DotAndCross} alt="Close" className="w-6 h-6" />
       </div>
       <h3 className="text-3xl pb-2 border-b border-gray-400">Portfolio</h3>
       <div className="flex-1 overflow-auto">

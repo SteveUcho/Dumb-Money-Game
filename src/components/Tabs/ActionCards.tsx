@@ -1,3 +1,5 @@
+"use client";
+
 import { liquidGlass, liquidGlassScale, liquidGlassShadow, popinCard } from "@/utils/classNames";
 import { motion, stagger, type Variants } from "motion/react";
 import { WithPriceColor } from "@/components/WithPriceColor";

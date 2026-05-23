@@ -1,3 +1,5 @@
+"use client";
+
 import type { ReactElement } from "react";
 import React, { useState, Children, cloneElement } from "react";
 import { motion } from "motion/react";

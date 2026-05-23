@@ -1,3 +1,5 @@
+"use client";
+
 import { useAtomValue } from "jotai";
 import { liquidGlass, liquidGlassShadow } from "../utils/classNames";
 import { WithPriceColor } from "./WithPriceColor";

@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { liquidGlass, liquidGlassScale } from "../../utils/classNames";
 import { GambleTab } from "./OptionsTab/GambleTab";

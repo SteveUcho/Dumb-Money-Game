@@ -1,13 +1,18 @@
+"use client";
+
 import { liquidGlass, liquidGlassShadow } from "@/utils/classNames";
-import { Link } from "react-router";
 import { motion } from "framer-motion";
+import { useAtomValue } from "jotai";
+import { showLobbyPasswordModalAtom } from "@/utils/atoms";
+import Link from "next/link";
+import { useSetAtom } from "jotai";
 
-interface LobbySignInModalProps {
-  lobbyName: string;
-  closeModal: () => void;
-}
+export function LobbySignInModal() {
+  const lobbyName = useAtomValue(showLobbyPasswordModalAtom);
+  const setShowLobbyPasswordModal = useSetAtom(showLobbyPasswordModalAtom);
 
-export function LobbySignInModal({ lobbyName, closeModal }: LobbySignInModalProps) {
+  if (!lobbyName) return null;
+
   return (
     <div className="fixed top-0 left-0 right-0 bottom-0 bg-black/5 z-50 backdrop-blur-sm">
       <motion.div
@@ -27,10 +32,10 @@ export function LobbySignInModal({ lobbyName, closeModal }: LobbySignInModalProp
           type="text"
           placeholder="Enter lobby code"
         />
-        <button onClick={closeModal} className="mt-2 bg-rh-red text-white p-2 rounded">
+        <button onClick={() => setShowLobbyPasswordModal(null)} className="mt-2 bg-rh-red text-white p-2 rounded">
           Back to Lobbies
         </button>
-        <Link to="/game" className="mt-2 bg-rh-green text-white p-2 rounded">
+        <Link href="/game" className="mt-2 bg-rh-green text-white p-2 rounded">
           Join Lobby
         </Link>
       </motion.div>

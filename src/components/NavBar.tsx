@@ -1,3 +1,5 @@
+"use client";
+
 import { MenuButton } from "./MenuButton";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -5,7 +7,7 @@ import { darkModeAtom } from "../utils/atoms";
 import { useAtom } from "jotai";
 import { liquidGlass, liquidGlassShadow } from "../utils/classNames";
 import { AnimatePresence } from "motion/react";
-import { Link } from "react-router";
+import Link from "next/link";
 
 export function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -52,7 +54,7 @@ export function NavBar() {
                 Toggle Dark
               </button>
               <Link
-                to="/home"
+                href="/home"
                 className="p-2 hover:bg-gray-200 hover:dark:bg-gray-800 text-nowrap border-b border-gray-800"
               >
                 Home
