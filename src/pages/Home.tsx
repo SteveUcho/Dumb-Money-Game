@@ -7,9 +7,15 @@ const LandingPage = () => {
   const [username, setUsername] = useAtom(usernameAtom);
 
   return (
-    <div>
+    <div className="p-4">
       Hello {username || "Guest"}
-      <div className="flex flex-col gap-2 p-2">
+      <div className="flex flex-col gap-2 py-2">
+        <Link
+          to="/auth/login"
+          className="border border-gray-400 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        >
+          Login
+        </Link>
         <Link
           to="/register"
           className="border border-gray-400 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -18,7 +24,7 @@ const LandingPage = () => {
         </Link>
         <motion.button
           initial={{ scale: 1 }}
-          whileHover={{ scale: 1.05 }}
+          whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => {
             setUsername(null);

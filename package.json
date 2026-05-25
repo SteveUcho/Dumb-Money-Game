@@ -11,6 +11,8 @@
     "prepare": "vp config"
   },
   "dependencies": {
+    "@ory/elements-react": "^1.1.0",
+    "@ory/kratos-client-fetch": "v26.2.0",
     "jotai": "^2.20.0",
     "motion": "^12.38.0",
     "react": "^19.2.5",

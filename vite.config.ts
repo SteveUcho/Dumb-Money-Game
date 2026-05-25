@@ -6,6 +6,9 @@ import { fileURLToPath } from "url";
 
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+    host: true,
+  },
   staged: {
     "*": "vp check --fix",
   },
