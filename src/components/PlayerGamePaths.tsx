@@ -22,7 +22,7 @@ export function PlayerGamePaths(props: PlayerGamePathsProps) {
           strokeOpacity={1}
           strokeWidth={2}
           stroke={playersDataPoints[index].color}
-          opacity={selectedPlayer === index ? 1 : 0.5}
+          opacity={selectedPlayer === index ? 1 : 0.3}
           fill="transparent"
           initial={{ pathLength: 0 }}
         />
