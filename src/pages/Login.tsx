@@ -1,9 +1,9 @@
 import { Login } from "@ory/elements-react/theme";
-import config from "@/../ory.config";
 import type { LoginFlow } from "@ory/kratos-client-fetch";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import { sdk, sdkError } from "@/ory-sdk";
+import config from "@/ory.config";
 import "@ory/elements-react/theme/styles.css";
 
 function LoginPage() {

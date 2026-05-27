@@ -2,7 +2,7 @@ import "./index.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router/dom";
-import { createBrowserRouter, redirect } from "react-router";
+import { createBrowserRouter } from "react-router";
 import { PageLayout } from "./components/PageLayout";
 import Index from "./pages/Index";
 import GamePage from "@/pages/Game";
@@ -28,22 +28,15 @@ const router = createBrowserRouter([
             path: "login",
             element: <LoginPage />,
           },
+          {
+            path: "registration",
+            element: <RegisterPage />,
+          },
         ],
       },
       {
         path: "/home",
         element: <HomePage />,
-      },
-      {
-        path: "/register",
-        element: <RegisterPage />,
-        loader: async () => {
-          // return data from here
-          const username = localStorage.getItem("username");
-          if (username) {
-            return redirect("/home");
-          }
-        },
       },
       {
         path: "/game",

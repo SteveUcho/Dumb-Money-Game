@@ -1,47 +1,119 @@
-import { liquidGlass, liquidGlassScale, liquidGlassShadow } from "@/utils/classNames";
-import { useSetAtom } from "jotai";
-import { usernameAtom } from "@/utils/atoms";
-import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useCallback, useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router";
+import { Registration } from "@ory/elements-react/theme";
+import { sdk, sdkError } from "@/ory-sdk";
+import type { RegistrationFlow } from "@ory/kratos-client-fetch";
+import config from "@/ory.config";
+import "@ory/elements-react/theme/styles.css";
 
 function RegisterPage() {
-  const navigate = useNavigate();
-  const setUsername = useSetAtom(usernameAtom);
-  const [tempUsername, setTempUsername] = useState("");
+  const [flow, setFlow] = useState<RegistrationFlow | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const handleSubmit = (e: React.SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setUsername(tempUsername);
-    setTempUsername("");
-    navigate("/home");
+  // The return_to is a query parameter is set by you when you would like to redirect
+  // the user back to a specific URL after registration is successful
+  // In most cases it is not necessary to set a return_to if the UI business logic is
+  // handled by the SPA.
+  // In OAuth flows this value might be ignored in favor of keeping the OAuth flow
+  // intact between multiple flows (e.g. Login -> Recovery -> Settings -> OAuth2 Consent)
+  // https://www.ory.sh/docs/oauth2-oidc/identity-provider-integration-settings
+  const returnTo = searchParams.get("return_to");
+
+  // The login_challenge is a query parameter set by the Ory OAuth2 registration flow
+  // Switching between pages should keep the login_challenge in the URL so that the
+  // OAuth flow can be completed upon completion of another flow (e.g. Login).
+  const loginChallenge = searchParams.get("login_challenge");
+
+  const navigate = useNavigate();
+
+  // Get the flow based on the flowId in the URL (.e.g redirect to this page after flow initialized)
+  const getFlow = useCallback(
+    (flowId: string) =>
+      sdk
+        // the flow data contains the form fields, error messages and csrf token
+        .getRegistrationFlow({ id: flowId })
+        .then((flow) => setFlow(flow))
+        .catch(sdkErrorHandler),
+    [],
+  );
+
+  // initialize the sdkError for generic handling of errors
+  const sdkErrorHandler = sdkError(getFlow, setFlow, navigate, "/registration", true);
+
+  // create a new registration flow
+  const createFlow = () => {
+    sdk
+      // we don't need to specify the return_to here since we are building an SPA. In server-side browser flows we would need to specify the return_to
+      .createBrowserRegistrationFlow({
+        ...(returnTo && { returnTo: returnTo }),
+        ...(loginChallenge && { loginChallenge: loginChallenge }),
+      })
+      .then((flow) => {
+        // Update URI query params to include flow id
+        setSearchParams({ ["flow"]: flow.id });
+        // Set the flow data
+        setFlow(flow);
+      })
+      .catch(sdkErrorHandler);
   };
 
+  // submit the registration form data to Ory
+  // const submitFlow = (body: UpdateRegistrationFlowBody) => {
+  //   // something unexpected went wrong and the flow was not set
+  //   if (!flow) return navigate("/registration", { replace: true });
+
+  //   sdk
+  //     .updateRegistrationFlow({
+  //       flow: flow.id,
+  //       updateRegistrationFlowBody: body,
+  //     })
+  //     .then(({ data }) => {
+  //       if ("continue_with" in data) {
+  //         for (const cw of data.continue_with ?? []) {
+  //           if (cw.action === "show_verification_ui") {
+  //             const search = new URLSearchParams();
+  //             search.set("flow", cw.flow.id);
+  //             navigate(
+  //               {
+  //                 pathname: "/verification",
+  //                 search: search.toString(),
+  //               },
+  //               { replace: true },
+  //             );
+  //             return;
+  //           }
+  //         }
+  //       }
+
+  //       // we successfully submitted the login flow, so lets redirect to the dashboard
+  //       navigate("/", { replace: true });
+  //     })
+  //     .catch(sdkErrorHandler);
+  // };
+
+  useEffect(() => {
+    // we might redirect to this page after the flow is initialized, so we check for the flowId in the URL
+    const flowId = searchParams.get("flow");
+    // the flow already exists
+    if (flowId) {
+      getFlow(flowId).catch(createFlow); // if for some reason the flow has expired, we need to get a new one
+      return;
+    }
+    // we assume there was no flow, so we create a new one
+    createFlow();
+  }, [navigate]);
+
+  if (!flow) return null;
+
   return (
-    <div
-      className={[
-        "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 p-6",
-        liquidGlass,
-        liquidGlassScale,
-        liquidGlassShadow,
-      ].join(" ")}
-    >
-      <div className="text-center">
-        <h2 className="text-2xl font-bold pb-2">Welcome to Dumb Money</h2>
-        <p className="text-lg">Get started by creating your username</p>
-        <form onSubmit={handleSubmit} className="mt-2 flex flex-col gap-2">
-          <input
-            required
-            className="border border-gray-300 rounded p-2"
-            type="text"
-            placeholder="Enter your username"
-            value={tempUsername}
-            onChange={(e) => setTempUsername(e.target.value)}
-          />
-          <button className="mt-2 bg-rh-green text-white px-4 py-2 rounded" type="submit">
-            Home
-          </button>
-        </form>
-      </div>
+    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+      <Registration
+        flow={flow as any}
+        config={config}
+        components={{
+          Card: {},
+        }}
+      />
     </div>
   );
 }

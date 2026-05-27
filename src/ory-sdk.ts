@@ -73,7 +73,7 @@ export const sdkError = (
             responseData.redirect_browser_to
           ) {
             console.warn("sdkError 403: Redirect browser to");
-            window.location = responseData.redirect_browser_to;
+            globalThis.location = responseData.redirect_browser_to;
             return;
           }
           break;
@@ -85,7 +85,7 @@ export const sdkError = (
               data: responseData || {},
               status: response.status,
               statusText: response.statusText,
-              url: window.location.href,
+              url: globalThis.location.href,
             };
 
             await navigate(`/error?error=${encodeURIComponent(JSON.stringify(errorMsg))}`, {
@@ -118,11 +118,11 @@ export const sdkError = (
         }
         case 422: {
           if (responseData.redirect_browser_to !== undefined) {
-            const currentUrl = new URL(window.location.href);
+            const currentUrl = new URL(globalThis.location.href);
             const redirect = new URL(
               responseData.redirect_browser_to,
               // need to add the base url since the `redirect_browser_to` is a relative url with no hostname
-              window.location.origin,
+              globalThis.location.origin,
             );
 
             // Path has changed
@@ -156,7 +156,7 @@ export const sdkError = (
               });
             } else {
               console.warn("sdkError 422: Redirect browser to");
-              window.location = responseData.redirect_browser_to;
+              globalThis.location = responseData.redirect_browser_to;
               return;
             }
           }

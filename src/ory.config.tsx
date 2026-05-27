@@ -1,6 +1,9 @@
 import type { OryClientConfiguration } from "@ory/elements-react";
 
 const config: OryClientConfiguration = {
+  sdk: {
+    url: import.meta.env.VITE_ORY_SDK_URL,
+  },
   project: {
     default_locale: "en",
     locale_behavior: "respect_accept_language",
