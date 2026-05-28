@@ -11,6 +11,8 @@ import LobbiesPage from "@/pages/Lobbies";
 import RegisterPage from "@/pages/Register";
 import Lobby from "@/pages/Lobby";
 import LoginPage from "./pages/Login";
+import AuthSettings from "./pages/AuthSettings";
+import { SessionProvider } from "@/contexts/sessionProvider";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +37,10 @@ const router = createBrowserRouter([
         ],
       },
       {
+        path: "/settings",
+        element: <AuthSettings />,
+      },
+      {
         path: "/home",
         element: <HomePage />,
       },
@@ -56,6 +62,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <SessionProvider>
+      <RouterProvider router={router} />
+    </SessionProvider>
   </StrictMode>,
 );

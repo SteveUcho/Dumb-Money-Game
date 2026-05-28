@@ -6,13 +6,14 @@ import { useAtom } from "jotai";
 import { liquidGlass, liquidGlassShadow } from "../utils/classNames";
 import { AnimatePresence } from "motion/react";
 import { Link } from "react-router";
+import LogOutButton from "./LogOutButton";
 
 export function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [darkMode, setDarkMode] = useAtom(darkModeAtom);
 
   useEffect(() => {
-    const root = window.document.documentElement;
+    const root = globalThis.document.documentElement;
     if (darkMode) {
       root.classList.add("dark");
     } else {
@@ -57,9 +58,7 @@ export function NavBar() {
               >
                 Home
               </Link>
-              <button className="p-2 hover:bg-gray-200 hover:dark:bg-gray-800 text-nowrap border-b border-gray-800">
-                Logout
-              </button>
+              <LogOutButton />
             </motion.div>
           )}
         </AnimatePresence>

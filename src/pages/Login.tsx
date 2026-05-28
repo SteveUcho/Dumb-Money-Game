@@ -46,7 +46,7 @@ function LoginPage() {
   );
 
   // initialize the sdkError for generic handling of errors
-  const sdkErrorHandler = sdkError(getFlow, setFlow, navigate, "/login", true);
+  const sdkErrorHandler = sdkError(getFlow, setFlow, navigate, "/auth/login", true);
 
   // Create a new login flow
   const createFlow = () => {

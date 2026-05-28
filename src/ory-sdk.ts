@@ -4,6 +4,7 @@
 import React from "react";
 import { type NavigateFunction } from "react-router";
 import { Configuration, FrontendApi, ResponseError } from "@ory/kratos-client-fetch";
+import config from "./ory.config";
 
 export const sdk = new FrontendApi(
   new Configuration({
@@ -58,13 +59,13 @@ export const sdkError = (
         }
         case 401: {
           console.warn("sdkError 401: Navigate to /login");
-          await navigate("/login", { replace: true });
+          await navigate(config.project.login_ui_url, { replace: true });
           return;
         }
         case 403: {
           // the user might have a session, but would require 2FA (Two-Factor Authentication)
           if (responseData.error?.id === "session_aal2_required") {
-            await navigate("/login?aal2=true", { replace: true });
+            await navigate(config.project.login_ui_url + "?aal2=true", { replace: true });
             return;
           }
 

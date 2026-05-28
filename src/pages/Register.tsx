@@ -38,7 +38,7 @@ function RegisterPage() {
   );
 
   // initialize the sdkError for generic handling of errors
-  const sdkErrorHandler = sdkError(getFlow, setFlow, navigate, "/registration", true);
+  const sdkErrorHandler = sdkError(getFlow, setFlow, navigate, "/auth/registration", true);
 
   // create a new registration flow
   const createFlow = () => {
