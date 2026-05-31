@@ -8,7 +8,14 @@ const LandingPage = () => {
     <div className="p-4">
       Hello {session?.identity?.traits.name.first || "Guest"}
       <div className="flex flex-col gap-2 py-2">
-        {!session ? (
+        {session ? (
+          <Link
+            to="/settings"
+            className="border border-gray-400 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          >
+            Settings
+          </Link>
+        ) : (
           <>
             <Link
               to="/auth/login"
@@ -23,22 +30,13 @@ const LandingPage = () => {
               Register
             </Link>
           </>
-        ) : (
-          <>
-            <Link
-              to="/settings"
-              className="border border-gray-400 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
-              Settings
-            </Link>
-            <Link
-              to="/lobbies"
-              className="border border-gray-400 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
-              Show Lobbies
-            </Link>
-          </>
         )}
+        <Link
+          to="/lobbies"
+          className="border border-gray-400 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        >
+          Show Lobbies
+        </Link>
       </div>
     </div>
   );
