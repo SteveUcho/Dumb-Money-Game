@@ -7,7 +7,9 @@ interface LobbySignInModalProps {
   closeModal: () => void;
 }
 
-export function LobbySignInModal({ lobbyName, closeModal }: LobbySignInModalProps) {
+export function LobbySignInModal(props: LobbySignInModalProps) {
+  const { lobbyName, closeModal } = props;
+
   return (
     <div className="fixed top-0 left-0 right-0 bottom-0 bg-black/5 z-50 backdrop-blur-sm">
       <motion.div
