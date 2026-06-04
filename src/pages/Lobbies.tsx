@@ -50,7 +50,7 @@ function Lobbies() {
         ].join(" ")}
       >
         <h2 className="text-3xl mb-6">Game Lobbies</h2>
-        <div className="flex flex-col gap-2 overflow-scroll flex-1 min-h-0">
+        <div className="flex flex-col gap-2 overflow-auto flex-1 min-h-0">
           {lobbies.map((lobby) => (
             <div
               key={lobby.id}
