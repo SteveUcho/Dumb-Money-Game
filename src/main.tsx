@@ -12,11 +12,13 @@ import RegisterPage from "@/pages/Register";
 import Lobby from "@/pages/Lobby";
 import LoginPage from "./pages/Login";
 import AuthSettings from "./pages/AuthSettings";
+import NotFound from "./pages/404";
 import { SessionProvider } from "@/contexts/sessionProvider";
 
 const router = createBrowserRouter([
   {
     path: "/",
+    ErrorBoundary: NotFound,
     element: <PageLayout />,
     children: [
       {

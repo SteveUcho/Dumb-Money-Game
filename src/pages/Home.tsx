@@ -14,7 +14,7 @@ const buttons = [
   },
   {
     name: "Register",
-    to: "/register",
+    to: "/auth/registration",
     type: "guest",
   },
   {
@@ -30,7 +30,7 @@ const LandingPage = () => {
   const isLoggedIn = !!session;
 
   return (
-    <div className="p-4">
+    <div className="p-4 md:w-3xl md:mx-auto">
       <div className="pb-4 text-3xl font-bold">
         Hello{" "}
         <span className={isLoggedIn ? "text-rh-green" : "text-rh-red"}>
