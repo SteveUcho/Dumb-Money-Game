@@ -1,7 +1,5 @@
-import { usernameAtom } from "@/utils/atoms";
+import { useWs } from "@/hooks/useWs";
 import { borderButton } from "@/utils/classNames";
-import { useAtomValue } from "jotai";
-import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 
 const lobbyData = {
@@ -27,61 +25,19 @@ const lobbyData = {
   ],
 };
 
-interface WsMessage {
-  id: string;
-  type: "message" | "join_lobby" | "leave_lobby";
-  message?: string;
-  player: string;
-}
-
 function Lobby() {
-  const [conn, setConn] = useState<WebSocket | null>(null);
-  const [messages, setMessages] = useState<WsMessage[]>([]);
-  const username = useAtomValue(usernameAtom);
   const params = useParams();
-
-  useEffect(() => {
-    if (!username || !params.lobbyId) return;
-    // Create WebSocket connection.
-    const socket = new WebSocket(
-      `ws://${import.meta.env.VITE_BACKEND_URL}/ws/lobby/chat/${params.lobbyId}`,
-    );
-    setConn(socket);
-
-    // Connection opened
-    socket.addEventListener("open", () => {
-      const myUuid = self.crypto.randomUUID();
-      socket.send(
-        JSON.stringify({
-          id: myUuid,
-          type: "join_lobby",
-          lobbyId: params.lobbyId,
-          player: username,
-        }),
-      );
-    });
-
-    // Listen for messages
-    socket.addEventListener("message", (event) => {
-      setMessages((prev) => [...prev, JSON.parse(event.data)]);
-    });
-
-    return () => {
-      if (socket.readyState === WebSocket.OPEN) {
-        const myUuid = self.crypto.randomUUID();
-        socket.send(JSON.stringify({ id: myUuid, type: "leave_lobby", player: username }));
-      }
-      socket.close();
-    };
-  }, [username, params]);
+  const { conn, messages } = useWs(
+    `ws://${import.meta.env.VITE_BACKEND_URL}/ws/lobby/chat/${params.lobbyId}`,
+  );
 
   const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
-    if (conn && username) {
+    if (conn) {
       const form = e.currentTarget as HTMLFormElement;
       const message = form.message.value;
-      const myUuid = self.crypto.randomUUID();
-      conn.send(JSON.stringify({ id: myUuid, type: "message", message, player: username }));
+      const myUuid = globalThis.crypto.randomUUID();
+      conn.send(JSON.stringify({ id: myUuid, type: "message", message }));
       form.message.value = "";
     }
   };
@@ -98,7 +54,7 @@ function Lobby() {
               </div>
             ))}
           </div>
-          <div></div>
+          <div>Placeholder for lobby actions</div>
         </div>
         <div className="grid grid-cols-2 gap-4 p-2">
           <Link to="/lobbies" className={["border-rh-red text-center", borderButton].join(" ")}>
