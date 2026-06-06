@@ -36,8 +36,7 @@ function Lobby() {
     if (conn) {
       const form = e.currentTarget as HTMLFormElement;
       const message = form.message.value;
-      const myUuid = globalThis.crypto.randomUUID();
-      conn.send(JSON.stringify({ id: myUuid, type: "message", message }));
+      conn.send(JSON.stringify({ type: "message", message }));
       form.message.value = "";
     }
   };
@@ -69,11 +68,11 @@ function Lobby() {
         <div className="flex-1 flex flex-col min-h-0">
           <p>Chat</p>
           <div className="flex-1 overflow-auto">
-            {messages.map((message) => (
-              <p key={message.id}>
-                {message.player}: {message.type === "join_lobby" ? "Joined the lobby" : null}
-                {message.type === "leave_lobby" ? "Left the lobby" : null}
-                {message.type === "message" ? message.message : null}
+            {messages.map((data) => (
+              <p key={data.messageId}>
+                {data.username}: {data.message?.type === "join_lobby" ? "Joined the lobby" : null}
+                {data.message?.type === "leave_lobby" ? "Left the lobby" : null}
+                {data.message?.type === "message" ? data.message.message : null}
               </p>
             ))}
           </div>

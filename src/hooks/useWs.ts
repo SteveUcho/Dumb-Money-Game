@@ -1,11 +1,16 @@
 import { useEffect, useState } from "react";
 import { useSession } from "./useSession";
 
+interface WsData {
+  clientId: string;
+  username: string;
+  messageId: string;
+  message?: WsMessage;
+}
+
 interface WsMessage {
-  id: string;
   type: "message" | "join_lobby" | "leave_lobby";
   message?: string;
-  player: string;
 }
 
 export function useWs(url: string) {
@@ -13,7 +18,7 @@ export function useWs(url: string) {
   const username = session?.identity?.traits.name.first;
 
   const [conn, setConn] = useState<WebSocket | null>(null);
-  const [messages, setMessages] = useState<WsMessage[]>([]);
+  const [messages, setMessages] = useState<WsData[]>([]);
 
   useEffect(() => {
     if (!url || !username) {
@@ -25,12 +30,9 @@ export function useWs(url: string) {
 
     // Connection opened
     socket.addEventListener("open", () => {
-      const myUuid = globalThis.crypto.randomUUID();
       socket.send(
         JSON.stringify({
-          id: myUuid,
           type: "join_lobby",
-          player: username,
         }),
       );
     });
@@ -42,8 +44,7 @@ export function useWs(url: string) {
 
     return () => {
       if (socket.readyState === WebSocket.OPEN) {
-        const myUuid = globalThis.crypto.randomUUID();
-        socket.send(JSON.stringify({ id: myUuid, type: "leave_lobby", player: username }));
+        socket.send(JSON.stringify({ type: "leave_lobby" }));
       }
       socket.close();
     };
