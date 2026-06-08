@@ -28,7 +28,7 @@ const lobbyData = {
 function Lobby() {
   const params = useParams();
   const { conn, messages } = useWs(
-    `ws://${import.meta.env.VITE_BACKEND_URL}/ws/lobby/chat/${params.lobbyId}`,
+    `ws://${import.meta.env.VITE_BACKEND_URL}/ws/chat-lobby/${params.lobbyId}`,
   );
 
   const handleSubmit = (e: React.SubmitEvent) => {
@@ -59,7 +59,10 @@ function Lobby() {
           <Link to="/lobbies" className={["border-rh-red text-center", borderButton].join(" ")}>
             Leave Lobby
           </Link>
-          <Link to="/game" className={["border-rh-green text-center", borderButton].join(" ")}>
+          <Link
+            to={`/game/${params.lobbyId}`}
+            className={["border-rh-green text-center", borderButton].join(" ")}
+          >
             Ready
           </Link>
         </div>

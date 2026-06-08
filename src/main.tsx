@@ -14,6 +14,7 @@ import LoginPage from "./pages/Login";
 import AuthSettings from "./pages/AuthSettings";
 import NotFound from "./pages/404";
 import { SessionProvider } from "@/contexts/sessionProvider";
+import { SWRConfig } from "swr";
 
 const router = createBrowserRouter([
   {
@@ -47,7 +48,7 @@ const router = createBrowserRouter([
         element: <HomePage />,
       },
       {
-        path: "/game",
+        path: "/game/:gameId",
         element: <GamePage />,
       },
       {
@@ -65,7 +66,13 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <SessionProvider>
-      <RouterProvider router={router} />
+      <SWRConfig
+        value={{
+          fetcher: (resource, init) => fetch(resource, init).then((res) => res.json()),
+        }}
+      >
+        <RouterProvider router={router} />
+      </SWRConfig>
     </SessionProvider>
   </StrictMode>,
 );

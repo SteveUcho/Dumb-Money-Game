@@ -32,7 +32,7 @@ export function LobbySignInModal(props: LobbySignInModalProps) {
         <button onClick={closeModal} className="mt-2 bg-rh-red text-white p-2 rounded">
           Back to Lobbies
         </button>
-        <Link to="/game" className="mt-2 bg-rh-green text-white p-2 rounded">
+        <Link to={`/game/${lobbyName}`} className="mt-2 bg-rh-green text-white p-2 rounded">
           Join Lobby
         </Link>
       </motion.div>

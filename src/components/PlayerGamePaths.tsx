@@ -1,13 +1,14 @@
 import { useAtomValue } from "jotai";
 import { motion } from "motion/react";
 import { playerSelectedAtom } from "@/utils/atoms";
+import type { PlayerChartData } from "@/types/GameTypes";
 
 interface PlayerGamePathsProps {
   playerLinePaths: string[];
-  playersDataPoints: { player: string; color: string }[];
+  playersDataPoints: PlayerChartData[];
 }
 
-export function PlayerGamePaths(props: PlayerGamePathsProps) {
+export function PlayerGamePaths(props: Readonly<PlayerGamePathsProps>) {
   const { playerLinePaths, playersDataPoints } = props;
   const selectedPlayer = useAtomValue(playerSelectedAtom);
 
@@ -15,7 +16,7 @@ export function PlayerGamePaths(props: PlayerGamePathsProps) {
     <>
       {playerLinePaths.map((path, index) => (
         <motion.path
-          key={playersDataPoints[index].player}
+          key={playersDataPoints[index].username}
           d={path}
           animate={{ pathLength: 1 }}
           transition={{ duration: 1, delay: index * 0.2 }}

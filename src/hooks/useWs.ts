@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useSession } from "./useSession";
 
 interface WsData {
   clientId: string;
@@ -14,14 +13,11 @@ interface WsMessage {
 }
 
 export function useWs(url: string) {
-  const { session } = useSession();
-  const username = session?.identity?.traits.name.first;
-
   const [conn, setConn] = useState<WebSocket | null>(null);
   const [messages, setMessages] = useState<WsData[]>([]);
 
   useEffect(() => {
-    if (!url || !username) {
+    if (!url) {
       return;
     }
     // Create WebSocket connection.
@@ -48,7 +44,7 @@ export function useWs(url: string) {
       }
       socket.close();
     };
-  }, [username]);
+  }, []);
 
   return {
     conn,

@@ -2,11 +2,12 @@ import { ActionSelector } from "@/components/Tabs/ActionSelector";
 import { GameBoard } from "@/components/GameBoard";
 import { StockPrice } from "@/components/StockPrice";
 import { OrderHistory } from "@/components/OrderHistory";
-import { GameStateProvider } from "@/contexts/gameStateProvider";
+import { gameStateStore } from "@/contexts/GameStateSystem";
+import { Provider } from "jotai";
 
 function GamePage() {
   return (
-    <GameStateProvider>
+    <Provider store={gameStateStore}>
       <div className="flex-1 flex flex-col">
         <StockPrice />
         {/* Game Content */}
@@ -15,7 +16,7 @@ function GamePage() {
         {/* floating items */}
         <ActionSelector />
       </div>
-    </GameStateProvider>
+    </Provider>
   );
 }
 

@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { useSetAtom } from "jotai";
 import { stockPriceHoverAtom } from "../utils/atoms";
 import { PlayerGamePaths } from "./PlayerGamePaths";
-
-type DataPoints = { x: number; y: number }[];
+import type { DataPoint, PlayerChartData } from "@/types/GameTypes";
+import useSWR from "swr";
+import { useParams } from "react-router";
 
 // data points should always start at 0,0
 // x is from 0 to 1000 -- for now? --- per quarter
-const dataPoints: DataPoints = [
+const stockDataPoints: DataPoint[] = [
   { x: 0, y: 0 },
   { x: 120, y: 0 },
   { x: 280, y: -50 },
@@ -17,9 +18,9 @@ const dataPoints: DataPoints = [
   { x: 950, y: 50 },
 ];
 
-const playersDataPoints: { player: string; points: DataPoints; color: string }[] = [
+const playersDataPoints: PlayerChartData[] = [
   {
-    player: "Player 1",
+    username: "Player 1",
     points: [
       { x: 0, y: 0 },
       { x: 120, y: 10 },
@@ -30,7 +31,7 @@ const playersDataPoints: { player: string; points: DataPoints; color: string }[]
     color: "red",
   },
   {
-    player: "Player 2",
+    username: "Player 2",
     points: [
       { x: 0, y: 0 },
       { x: 120, y: 5 },
@@ -41,7 +42,7 @@ const playersDataPoints: { player: string; points: DataPoints; color: string }[]
     color: "blue",
   },
   {
-    player: "Player 3",
+    username: "Player 3",
     points: [
       { x: 0, y: 0 },
       { x: 120, y: 15 },
@@ -52,7 +53,7 @@ const playersDataPoints: { player: string; points: DataPoints; color: string }[]
     color: "green",
   },
   {
-    player: "Player 4",
+    username: "Player 4",
     points: [
       { x: 0, y: 0 },
       { x: 120, y: 15 },
@@ -60,7 +61,7 @@ const playersDataPoints: { player: string; points: DataPoints; color: string }[]
       { x: 610, y: 40 },
       { x: 950, y: -100 },
     ],
-    color: "yellow",
+    color: "purple",
   },
 ];
 
@@ -68,10 +69,10 @@ const topPadding = 35;
 const bottomPadding = 20;
 
 function transformPoints(
-  dataPoints: DataPoints,
+  dataPoints: DataPoint[],
   dimensions: { height: number; width: number },
-  yRange?: { min: number; max: number },
-): DataPoints {
+  yRange?: { min: number; max: number }, // if not provided, will calculate from dataPoints, used for consistent y-axis scaling across multiple datasets
+): DataPoint[] {
   if (!dataPoints.length) return [];
   let minY: number;
   let maxY: number;
@@ -99,11 +100,12 @@ function transformPoints(
   });
 }
 
-function convertToPath(dataPoints: DataPoints): string {
+function convertToPath(dataPoints: DataPoint[]): string {
+  if (!dataPoints || dataPoints.length === 0) return "";
   return "M" + dataPoints.map((point) => `${point.x},${point.y}`).join("L");
 }
 
-function getYFromX(points: DataPoints, x: number): number | null {
+function getYFromX(points: DataPoint[], x: number): number | null {
   if (!points || points.length === 0) return null;
 
   // Clamp to bounds
@@ -133,29 +135,46 @@ function getYFromX(points: DataPoints, x: number): number | null {
   return p1.y + t * (p2.y - p1.y);
 }
 
-export function GameBoard(props: React.HtmlHTMLAttributes<HTMLDivElement>) {
+interface ChartData {
+  players: PlayerChartData[];
+  stock: DataPoint[];
+}
+
+export function GameBoard(props: Readonly<React.HtmlHTMLAttributes<HTMLDivElement>>) {
+  const params = useParams();
   const [scope, animate] = useAnimate();
   const [boardDimensions, setBoardDimensions] = useState({ width: 100, height: 100 });
   const setStockPriceHover = useSetAtom(stockPriceHoverAtom);
 
-  const boardPoints = transformPoints(dataPoints, boardDimensions);
-  const stockLinePath = convertToPath(boardPoints);
+  const { data } = useSWR<ChartData>(
+    params.gameId ? `/api/game/stock-chart-points/${params.gameId}` : null,
+    {
+      fallbackData: { players: playersDataPoints, stock: stockDataPoints },
+    },
+  );
 
-  const yRange = playersDataPoints.reduce(
+  const stockPoints = transformPoints(data?.stock ?? [], boardDimensions);
+  const stockLinePath = convertToPath(stockPoints);
+
+  const yRange = data?.players.reduce(
     (acc, player) => {
-      const min = Math.min(...player.points.map((point) => point.y));
-      const max = Math.max(...player.points.map((point) => point.y));
+      let minY = 0;
+      let maxY = 0;
+      player.points.forEach((point) => {
+        minY = Math.min(minY, point.y);
+        maxY = Math.max(maxY, point.y);
+      });
       return {
-        min: Math.min(acc.min, min),
-        max: Math.max(acc.max, max),
+        min: Math.min(acc.min, minY),
+        max: Math.max(acc.max, maxY),
       };
     },
     { min: 0, max: 0 },
   );
-  const playerBoardPoints = playersDataPoints.map((player) =>
+  const playerPoints = data?.players.map((player) =>
     transformPoints(player.points, boardDimensions, yRange),
   );
-  const playerLinePaths = playerBoardPoints.map(convertToPath);
+  const playerLinePaths = playerPoints?.map(convertToPath) ?? [];
 
   const pointerHover: React.MouseEventHandler<SVGElement> = (event) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -175,12 +194,12 @@ export function GameBoard(props: React.HtmlHTMLAttributes<HTMLDivElement>) {
 
     const boxWidth = rect.right - rect.x / rect.left;
     const widthPercent = mouseX / boxWidth;
-    const priceY = getYFromX(dataPoints, 1000 * widthPercent);
+    const priceY = getYFromX(data?.stock ?? [], 1000 * widthPercent);
     setStockPriceHover(priceY ?? 0);
 
-    const points = boardPoints;
+    const points = stockPoints;
 
-    if (!stockPath || !hoverCircle) return;
+    if (!stockPath || !hoverCircle || !points.length) return;
 
     const pathY = getYFromX(points, mouseX);
 
@@ -213,11 +232,12 @@ export function GameBoard(props: React.HtmlHTMLAttributes<HTMLDivElement>) {
   }, []);
 
   useEffect(() => {
-    const path = scope.current.querySelector("#stock-line");
+    const path: SVGGeometryElement = scope.current.querySelector("#stock-line");
     const followCircle = scope.current.querySelector("#follow-circle");
     const endCircle = scope.current.querySelector("#end-circle");
     const totalLength = path.getTotalLength();
 
+    if (!path || !totalLength) return;
     animate(
       path,
       { pathLength: 1 },
@@ -328,7 +348,10 @@ export function GameBoard(props: React.HtmlHTMLAttributes<HTMLDivElement>) {
         >
           Q1
         </text>
-        <PlayerGamePaths playerLinePaths={playerLinePaths} playersDataPoints={playersDataPoints} />
+        <PlayerGamePaths
+          playerLinePaths={playerLinePaths}
+          playersDataPoints={data?.players ?? []}
+        />
         <motion.path
           id="stock-line"
           d={stockLinePath}
@@ -368,7 +391,7 @@ export function GameBoard(props: React.HtmlHTMLAttributes<HTMLDivElement>) {
         <circle
           id="end-circle"
           cx="95%"
-          cy={boardPoints.at(-1)?.y ?? 0}
+          cy={stockPoints.at(-1)?.y ?? 0}
           r="8"
           opacity={0}
           strokeWidth={4}
