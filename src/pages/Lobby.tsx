@@ -1,5 +1,6 @@
 import { useWs } from "@/hooks/useWs";
 import { borderButton } from "@/utils/classNames";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 
 const lobbyData = {
@@ -30,6 +31,18 @@ function Lobby() {
   const { conn, messages } = useWs(
     `ws://${import.meta.env.VITE_BACKEND_URL}/ws/chat-lobby/${params.lobbyId}`,
   );
+  const [connectionFailed, setConnectionFailed] = useState(false);
+
+  useEffect(() => {
+    let timer = setTimeout(() => {
+      if (!messages.length) {
+        setConnectionFailed(true);
+      }
+    }, 2000);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, []);
 
   const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
@@ -71,6 +84,8 @@ function Lobby() {
         <div className="flex-1 flex flex-col min-h-0">
           <p>Chat</p>
           <div className="flex-1 overflow-auto">
+            {messages.length === 0 && !connectionFailed ? <p>Loading...</p> : null}
+            {connectionFailed ? <p>Connection failed</p> : null}
             {messages.map((data) => (
               <p key={data.messageId}>
                 {data.username}: {data.message?.type === "join_lobby" ? "Joined the lobby" : null}
