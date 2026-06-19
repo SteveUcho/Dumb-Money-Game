@@ -5,16 +5,16 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Localhost",
       "type": "chrome",
       "request": "launch",
-      "name": "Localhost",
       "url": "http://localhost:5173",
       "webRoot": "${workspaceFolder}"
     },
     {
+      "name": "Nginx 127.0.0.1",
       "type": "chrome",
       "request": "launch",
-      "name": "Nginx",
       "url": "http://127.0.0.1",
       "webRoot": "${workspaceFolder}"
     }

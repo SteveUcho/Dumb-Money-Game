@@ -29,20 +29,20 @@ const lobbyData = {
 function Lobby() {
   const params = useParams();
   const { conn, messages } = useWs(
-    `ws://${import.meta.env.VITE_BACKEND_URL}/ws/chat-lobby/${params.lobbyId}`,
+    `ws://${import.meta.env.VITE_BACKEND_URL}/ws/lobby/${params.lobbyId}`,
   );
   const [connectionFailed, setConnectionFailed] = useState(false);
 
   useEffect(() => {
     let timer = setTimeout(() => {
-      if (!messages.length) {
+      if (conn?.readyState !== WebSocket.OPEN) {
         setConnectionFailed(true);
       }
     }, 2000);
     return () => {
       clearTimeout(timer);
     };
-  }, []);
+  }, [conn]);
 
   const handleSubmit = (e: React.SubmitEvent) => {
     e.preventDefault();
