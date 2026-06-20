@@ -6,7 +6,7 @@ import useSWR from "swr";
 
 interface Lobby {
   id: string;
-  name: string;
+  title: string;
   players: number;
   maxPlayers: number;
   passwordRequired?: boolean;
@@ -19,38 +19,38 @@ interface LobbiesResponse {
 const lobbies: Lobby[] = [
   {
     id: "1",
-    name: "Lobby 1",
+    title: "Lobby 1",
     players: 2,
     maxPlayers: 4,
   },
   {
     id: "2",
-    name: "Lobby 2",
+    title: "Lobby 2",
     players: 3,
     maxPlayers: 4,
     passwordRequired: true,
   },
   {
     id: "3",
-    name: "Lobby 3",
+    title: "Lobby 3",
     players: 4,
     maxPlayers: 4,
   },
   {
     id: "4",
-    name: "Lobby 4",
+    title: "Lobby 4",
     players: 5,
     maxPlayers: 5,
   },
   {
     id: "5",
-    name: "Lobby 5",
+    title: "Lobby 5",
     players: 6,
     maxPlayers: 6,
   },
   {
     id: "6",
-    name: "Lobby 6",
+    title: "Lobby 6",
     players: 7,
     maxPlayers: 7,
   },
@@ -94,13 +94,13 @@ function Lobbies() {
               key={lobby.id}
               className="grid grid-cols-3 gap-2 border border-white/20 p-2 rounded-lg items-center"
             >
-              <div>{lobby.name}</div>
+              <div>{lobby.title}</div>
               <div>
                 {lobby.players}/{lobby.maxPlayers} players
               </div>
               {lobby.passwordRequired ? (
                 <button
-                  onClick={() => setShowLobbySignInModal(lobby.name)}
+                  onClick={() => setShowLobbySignInModal(lobby.title)}
                   className="border border-rh-green text-rh-green p-1 rounded-xl"
                 >
                   Password

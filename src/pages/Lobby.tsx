@@ -6,7 +6,11 @@ import useSWR from "swr";
 
 interface LobbyData {
   lobbyId: string;
+  title: string;
   owner: string;
+  maxPlayers: number;
+  symbol: string;
+  buyIn: number;
   players: {
     id: string;
     name: string;
@@ -16,7 +20,11 @@ interface LobbyData {
 
 const lobbyData: LobbyData = {
   lobbyId: "123",
+  title: "Lobby 1",
   owner: "Player 1",
+  maxPlayers: 4,
+  symbol: "aapl",
+  buyIn: 100,
   players: [
     {
       id: "1",
@@ -37,6 +45,8 @@ const lobbyData: LobbyData = {
   ],
   playersReady: ["1"],
 };
+
+const symbols = ["nvda", "aapl", "msft", "amzn", "googl", "avgo", "meta", "tsla", "lly"];
 
 function Lobby() {
   const params = useParams();
@@ -73,7 +83,7 @@ function Lobby() {
   return (
     <div className="flex-1 min-h-0">
       <div className="h-1/3 flex flex-col">
-        <div className="flex-1 grid grid-cols-2 gap-2">
+        <div className="flex-1 grid grid-cols-2 gap-4 p-2">
           <div>
             {data?.players.map((player) => (
               <div key={player.name} className="flex gap-2">
@@ -82,7 +92,44 @@ function Lobby() {
               </div>
             ))}
           </div>
-          <div>Placeholder for lobby actions</div>
+          <div className="flex flex-col gap-2">
+            <form onSubmit={handleSubmit} className="flex">
+              <input
+                type="text"
+                name="title"
+                className={[borderButton, "flex-1"].join(" ")}
+                value={data?.title}
+              />
+            </form>
+            <form onSubmit={handleSubmit} className="flex justify-between items-center">
+              <p>Symbol:</p>
+              <select name="symbols" className={borderButton} value={data?.symbol}>
+                {symbols.map((symbol) => (
+                  <option key={symbol} value={symbol}>
+                    {symbol.toUpperCase()}
+                  </option>
+                ))}
+              </select>
+            </form>
+            <form onSubmit={handleSubmit} className="flex justify-between items-center">
+              <p>Max Players:</p>
+              <input
+                type="number"
+                name="maxPlayers"
+                className={[borderButton, "w-16"].join(" ")}
+                value={data?.maxPlayers}
+              />
+            </form>
+            <form onSubmit={handleSubmit} className="flex justify-between items-center">
+              <p>Buy In:</p>
+              <input
+                type="number"
+                name="buyIn"
+                className={[borderButton, "w-16"].join(" ")}
+                value={data?.buyIn}
+              />
+            </form>
+          </div>
         </div>
         <div className="grid grid-cols-2 gap-4 p-2">
           <Link to="/lobbies" className={["border-rh-red text-center", borderButton].join(" ")}>
