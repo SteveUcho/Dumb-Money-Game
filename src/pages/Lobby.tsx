@@ -1,5 +1,5 @@
 import { useWs } from "@/hooks/useWs";
-import { borderButton } from "@/utils/classNames";
+import { borderButton, liquidGlass, liquidGlassScale, liquidGlassShadow } from "@/utils/classNames";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import useSWR from "swr";
@@ -82,13 +82,27 @@ function Lobby() {
 
   return (
     <div className="flex-1 min-h-0">
-      <div className="h-1/3 flex flex-col">
-        <div className="flex-1 grid grid-cols-2 gap-4 p-2">
-          <div>
+      <div className="h-1/3 flex flex-col p-2 gap-4">
+        <div className="min-h-0 flex-1 grid grid-cols-2 gap-2">
+          <div className="flex flex-col gap-2 hide-scrollbar overflow-y-auto">
             {data?.players.map((player) => (
-              <div key={player.name} className="flex gap-2">
-                <p>{player.name}</p>
-                <p>{data.playersReady.includes(player.id) ? "Ready" : "Not Ready"}</p>
+              <div
+                key={player.name}
+                className={[
+                  liquidGlass,
+                  liquidGlassScale,
+                  liquidGlassShadow,
+                  "flex justify-between items-center",
+                ].join(" ")}
+              >
+                <div>
+                  <p>{player.name}</p>
+                  <p>{data.playersReady.includes(player.id) ? "Ready" : "Not Ready"}</p>
+                </div>
+                <div className="flex gap-2">
+                  <button className={[borderButton, "text-rh-red"].join(" ")}>Kick</button>
+                  <button className={[borderButton, "text-amber-500"].join(" ")}>C</button>
+                </div>
               </div>
             ))}
           </div>
@@ -131,7 +145,7 @@ function Lobby() {
             </form>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-4 p-2">
+        <div className="grid grid-cols-2 gap-4">
           <Link to="/lobbies" className={["border-rh-red text-center", borderButton].join(" ")}>
             Leave Lobby
           </Link>

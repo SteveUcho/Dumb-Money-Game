@@ -20,3 +20,13 @@ body {
   height: 100vh;
   overflow: hidden;
 }
+
+.hide-scrollbar {
+  /* Chrome, Safari, and Opera */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Firefox */
+  scrollbar-width: none;
+}
