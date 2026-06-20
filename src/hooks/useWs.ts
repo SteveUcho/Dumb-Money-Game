@@ -1,20 +1,31 @@
 import { useEffect, useState } from "react";
 
 interface WsData {
-  clientId: string;
-  username: string;
+  type: string;
   messageId: string;
-  message?: WsMessage;
+  playerId: string;
+  username: string;
 }
 
-interface WsMessage {
-  type: "message" | "join_lobby" | "leave_lobby";
-  message?: string;
+interface ChatMessage extends WsData {
+  type: "chat";
+  data: {
+    message: string;
+  };
+}
+
+interface SystemMessage extends WsData {
+  type: "system";
+  data: {
+    action: "player_joined" | "player_left";
+    playerId: string;
+    username: string;
+  };
 }
 
 export function useWs(url: string | null) {
   const [conn, setConn] = useState<WebSocket | null>(null);
-  const [messages, setMessages] = useState<WsData[]>([]);
+  const [messages, setMessages] = useState<(ChatMessage | SystemMessage)[]>([]);
 
   useEffect(() => {
     if (!url) {
@@ -24,24 +35,12 @@ export function useWs(url: string | null) {
     const socket = new WebSocket(url);
     setConn(socket);
 
-    // Connection opened
-    socket.addEventListener("open", () => {
-      socket.send(
-        JSON.stringify({
-          type: "join_lobby",
-        }),
-      );
-    });
-
     // Listen for messages
     socket.addEventListener("message", (event) => {
       setMessages((prev) => [...prev, JSON.parse(event.data)]);
     });
 
     return () => {
-      if (socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({ type: "leave_lobby" }));
-      }
       socket.close();
     };
   }, [url]);

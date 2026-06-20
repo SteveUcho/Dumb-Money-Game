@@ -2,36 +2,52 @@ import { useWs } from "@/hooks/useWs";
 import { borderButton } from "@/utils/classNames";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
+import useSWR from "swr";
 
-const lobbyData = {
+interface LobbyData {
+  lobbyId: string;
+  owner: string;
+  players: {
+    id: string;
+    name: string;
+  }[];
+  playersReady: string[];
+}
+
+const lobbyData: LobbyData = {
   lobbyId: "123",
   owner: "Player 1",
   players: [
     {
+      id: "1",
       name: "Player 1",
-      ready: false,
     },
     {
+      id: "2",
       name: "Player 2",
-      ready: false,
     },
     {
+      id: "3",
       name: "Player 3",
-      ready: false,
     },
     {
+      id: "4",
       name: "Player 4",
-      ready: false,
     },
   ],
+  playersReady: ["1"],
 };
 
 function Lobby() {
   const params = useParams();
+  const [connectionFailed, setConnectionFailed] = useState(false);
+
   const { conn, messages } = useWs(
     params.lobbyId ? `ws://${import.meta.env.VITE_BACKEND_URL}/ws/lobby/${params.lobbyId}` : null,
   );
-  const [connectionFailed, setConnectionFailed] = useState(false);
+  const { data } = useSWR<LobbyData>(params.lobbyId ? `/api/lobby/${params.lobbyId}` : null, {
+    fallbackData: lobbyData,
+  });
 
   useEffect(() => {
     let timer = setTimeout(() => {
@@ -49,7 +65,7 @@ function Lobby() {
     if (conn) {
       const form = e.currentTarget as HTMLFormElement;
       const message = form.message.value;
-      conn.send(JSON.stringify({ type: "message", message }));
+      conn.send(JSON.stringify({ type: "chat", message }));
       form.message.value = "";
     }
   };
@@ -59,10 +75,10 @@ function Lobby() {
       <div className="h-1/3 flex flex-col">
         <div className="flex-1 grid grid-cols-2 gap-2">
           <div>
-            {lobbyData.players.map((player) => (
+            {data?.players.map((player) => (
               <div key={player.name} className="flex gap-2">
                 <p>{player.name}</p>
-                <p>{player.ready ? "Ready" : "Not Ready"}</p>
+                <p>{data.playersReady.includes(player.id) ? "Ready" : "Not Ready"}</p>
               </div>
             ))}
           </div>
@@ -86,13 +102,24 @@ function Lobby() {
           <div className="flex-1 overflow-auto">
             {messages.length === 0 && !connectionFailed ? <p>Loading...</p> : null}
             {connectionFailed ? <p>Connection failed</p> : null}
-            {messages.map((data) => (
-              <p key={data.messageId}>
-                {data.username}: {data.message?.type === "join_lobby" ? "Joined the lobby" : null}
-                {data.message?.type === "leave_lobby" ? "Left the lobby" : null}
-                {data.message?.type === "message" ? data.message.message : null}
-              </p>
-            ))}
+            {messages.map((message) => {
+              if (message.type === "chat") {
+                return (
+                  <p key={message.messageId}>
+                    {message.username}: {message.data.message}
+                  </p>
+                );
+              } else if (message.type === "system") {
+                return (
+                  <p key={message.messageId}>
+                    {message.username}: {message.data.username}
+                    {message.data.action === "player_joined" ? " joined the lobby" : null}
+                    {message.data.action === "player_left" ? " left the lobby" : null}
+                  </p>
+                );
+              }
+              return null;
+            })}
           </div>
         </div>
         <form onSubmit={handleSubmit} className="pt-2">
