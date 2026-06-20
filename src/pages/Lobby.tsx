@@ -166,8 +166,6 @@ function Lobby() {
       <div className="h-2/3 bg-green-300 dark:bg-gray-800 p-4 flex flex-col">
         <div className="flex-1 flex flex-col min-h-0">
           <p>Chat</p>
-          session id: {session?.id}
-          owner id: {data?.ownerId}
           <div className="flex-1 overflow-auto">
             {messages.length === 0 && !connectionFailed ? <p>Loading...</p> : null}
             {connectionFailed ? <p>Connection failed</p> : null}
