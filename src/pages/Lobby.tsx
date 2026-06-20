@@ -103,12 +103,14 @@ function Lobby() {
                   <p>{player.name}</p>
                   <p>{data.playersReady.includes(player.id) ? "Ready" : "Not Ready"}</p>
                 </div>
-                {session?.id === data?.ownerId || !session ? (
-                  <div className="flex gap-2">
-                    <button className={[borderButton, "text-rh-red"].join(" ")}>Kick</button>
-                    <button className={[borderButton, "text-amber-500"].join(" ")}>C</button>
-                  </div>
-                ) : null}
+                {session?.identity?.id === player.id && <div className="text-amber-500">YOU</div>}
+                {(session?.identity?.id === data?.ownerId || !session) &&
+                  player.id !== data?.ownerId && (
+                    <div className="flex gap-2">
+                      <button className={[borderButton, "text-rh-red"].join(" ")}>Kick</button>
+                      <button className={[borderButton, "text-amber-500"].join(" ")}>C</button>
+                    </div>
+                  )}
               </div>
             ))}
           </div>
