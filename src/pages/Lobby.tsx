@@ -1,3 +1,4 @@
+import { useSession } from "@/hooks/useSession";
 import { useWs } from "@/hooks/useWs";
 import { borderButton, liquidGlass, liquidGlassScale, liquidGlassShadow } from "@/utils/classNames";
 import { useEffect, useState } from "react";
@@ -7,6 +8,7 @@ import useSWR from "swr";
 interface LobbyData {
   lobbyId: string;
   title: string;
+  ownerId: string;
   owner: string;
   maxPlayers: number;
   symbol: string;
@@ -21,6 +23,7 @@ interface LobbyData {
 const lobbyData: LobbyData = {
   lobbyId: "123",
   title: "Lobby 1",
+  ownerId: "1",
   owner: "Player 1",
   maxPlayers: 4,
   symbol: "aapl",
@@ -50,6 +53,7 @@ const symbols = ["nvda", "aapl", "msft", "amzn", "googl", "avgo", "meta", "tsla"
 
 function Lobby() {
   const params = useParams();
+  const { session } = useSession();
   const [connectionFailed, setConnectionFailed] = useState(false);
 
   const { conn, messages } = useWs(
@@ -99,10 +103,12 @@ function Lobby() {
                   <p>{player.name}</p>
                   <p>{data.playersReady.includes(player.id) ? "Ready" : "Not Ready"}</p>
                 </div>
-                <div className="flex gap-2">
-                  <button className={[borderButton, "text-rh-red"].join(" ")}>Kick</button>
-                  <button className={[borderButton, "text-amber-500"].join(" ")}>C</button>
-                </div>
+                {session?.id === data?.ownerId || !session ? (
+                  <div className="flex gap-2">
+                    <button className={[borderButton, "text-rh-red"].join(" ")}>Kick</button>
+                    <button className={[borderButton, "text-amber-500"].join(" ")}>C</button>
+                  </div>
+                ) : null}
               </div>
             ))}
           </div>
@@ -160,6 +166,8 @@ function Lobby() {
       <div className="h-2/3 bg-green-300 dark:bg-gray-800 p-4 flex flex-col">
         <div className="flex-1 flex flex-col min-h-0">
           <p>Chat</p>
+          session id: {session?.id}
+          owner id: {data?.ownerId}
           <div className="flex-1 overflow-auto">
             {messages.length === 0 && !connectionFailed ? <p>Loading...</p> : null}
             {connectionFailed ? <p>Connection failed</p> : null}
