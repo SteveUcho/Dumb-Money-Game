@@ -29,7 +29,7 @@ const lobbyData = {
 function Lobby() {
   const params = useParams();
   const { conn, messages } = useWs(
-    `ws://${import.meta.env.VITE_BACKEND_URL}/ws/lobby/${params.lobbyId}`,
+    params.lobbyId ? `ws://${import.meta.env.VITE_BACKEND_URL}/ws/lobby/${params.lobbyId}` : null,
   );
   const [connectionFailed, setConnectionFailed] = useState(false);
 

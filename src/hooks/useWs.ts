@@ -12,7 +12,7 @@ interface WsMessage {
   message?: string;
 }
 
-export function useWs(url: string) {
+export function useWs(url: string | null) {
   const [conn, setConn] = useState<WebSocket | null>(null);
   const [messages, setMessages] = useState<WsData[]>([]);
 
@@ -44,7 +44,7 @@ export function useWs(url: string) {
       }
       socket.close();
     };
-  }, []);
+  }, [url]);
 
   return {
     conn,
