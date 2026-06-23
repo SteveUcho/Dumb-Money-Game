@@ -1,6 +1,7 @@
 import { useSession } from "@/hooks/useSession";
 import { useWs } from "@/hooks/useWs";
 import { borderButton, liquidGlass, liquidGlassScale, liquidGlassShadow } from "@/utils/classNames";
+import { debounce } from "es-toolkit";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import useSWR from "swr";
@@ -59,9 +60,12 @@ function Lobby() {
   const { conn, messages } = useWs(
     params.lobbyId ? `ws://${import.meta.env.VITE_BACKEND_URL}/ws/lobby/${params.lobbyId}` : null,
   );
-  const { data } = useSWR<LobbyData>(params.lobbyId ? `/api/lobby/${params.lobbyId}` : null, {
-    fallbackData: lobbyData,
-  });
+  const { data, mutate } = useSWR<LobbyData>(
+    params.lobbyId ? `/api/lobby/${params.lobbyId}` : null,
+    {
+      fallbackData: lobbyData,
+    },
+  );
 
   useEffect(() => {
     let timer = setTimeout(() => {
@@ -83,6 +87,29 @@ function Lobby() {
       form.message.value = "";
     }
   };
+
+  const updateField = debounce(async (e: React.ChangeEvent<HTMLFormElement>) => {
+    const formdata = new FormData(e.target.parentElement as HTMLFormElement);
+    const data: Record<string, string | number> = {};
+    for (const [key, value] of formdata.entries()) {
+      data[key] = Number(value) || String(value);
+    }
+    try {
+      const res = await fetch(`/api/lobby/${params.lobbyId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        console.error("Failed to update lobby:", res.statusText);
+      }
+      mutate();
+    } catch (error) {
+      console.error(error);
+    }
+  }, 1000);
 
   return (
     <div className="flex-1 min-h-0">
@@ -115,41 +142,41 @@ function Lobby() {
             ))}
           </div>
           <div className="flex flex-col gap-2">
-            <form onSubmit={handleSubmit} className="flex">
+            <form onChange={updateField} className="flex flex-col gap-2">
               <input
                 type="text"
                 name="title"
-                className={[borderButton, "flex-1"].join(" ")}
-                value={data?.title}
+                className={[borderButton, "w-full"].join(" ")}
+                defaultValue={data?.title}
               />
-            </form>
-            <form onSubmit={handleSubmit} className="flex justify-between items-center">
-              <p>Symbol:</p>
-              <select name="symbols" className={borderButton} value={data?.symbol}>
-                {symbols.map((symbol) => (
-                  <option key={symbol} value={symbol}>
-                    {symbol.toUpperCase()}
-                  </option>
-                ))}
-              </select>
-            </form>
-            <form onSubmit={handleSubmit} className="flex justify-between items-center">
-              <p>Max Players:</p>
-              <input
-                type="number"
-                name="maxPlayers"
-                className={[borderButton, "w-16"].join(" ")}
-                value={data?.maxPlayers}
-              />
-            </form>
-            <form onSubmit={handleSubmit} className="flex justify-between items-center">
-              <p>Buy In:</p>
-              <input
-                type="number"
-                name="buyIn"
-                className={[borderButton, "w-16"].join(" ")}
-                value={data?.buyIn}
-              />
+              <div className="flex justify-between items-center">
+                <p>Symbol:</p>
+                <select name="symbol" className={borderButton} defaultValue={data?.symbol}>
+                  {symbols.map((symbol) => (
+                    <option key={symbol} value={symbol}>
+                      {symbol.toUpperCase()}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex justify-between items-center">
+                <p>Max Players:</p>
+                <input
+                  type="number"
+                  name="maxPlayers"
+                  className={[borderButton, "w-16"].join(" ")}
+                  defaultValue={data?.maxPlayers}
+                />
+              </div>
+              <div className="flex justify-between items-center">
+                <p>Buy In:</p>
+                <input
+                  type="number"
+                  name="buyIn"
+                  className={[borderButton, "w-16"].join(" ")}
+                  defaultValue={data?.buyIn}
+                />
+              </div>
             </form>
           </div>
         </div>
