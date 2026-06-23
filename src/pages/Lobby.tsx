@@ -111,6 +111,22 @@ function Lobby() {
     }
   }, 1000);
 
+  const removePlayer = (playerId: string) => async () => {
+    try {
+      const res = await fetch(`/api/lobby/${params.lobbyId}/remove-player/${playerId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        console.error("Failed to remove player:", res.statusText);
+      }
+      mutate();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const isOwner = data?.ownerId === session?.identity?.id;
+
   return (
     <div className="flex-1 min-h-0">
       <div className="h-1/3 flex flex-col p-2 gap-4">
@@ -131,18 +147,29 @@ function Lobby() {
                   <p>{data.playersReady.includes(player.id) ? "Ready" : "Not Ready"}</p>
                 </div>
                 {session?.identity?.id === player.id && <div className="text-amber-500">YOU</div>}
-                {(session?.identity?.id === data?.ownerId || !session) &&
-                  player.id !== data?.ownerId && (
-                    <div className="flex gap-2">
-                      <button className={[borderButton, "text-rh-red"].join(" ")}>Kick</button>
-                      <button className={[borderButton, "text-amber-500"].join(" ")}>C</button>
-                    </div>
-                  )}
+                {data?.ownerId === player.id && !isOwner && (
+                  <div className="text-cyan-500">OWNER</div>
+                )}
+                {(isOwner || !session) && player.id !== data?.ownerId && (
+                  <div className="flex gap-2">
+                    <button
+                      className={[borderButton, "text-rh-red"].join(" ")}
+                      onClick={removePlayer(player.id)}
+                    >
+                      Kick
+                    </button>
+                    <button className={[borderButton, "text-amber-500"].join(" ")}>C</button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
           <div className="flex flex-col gap-2">
-            <form onChange={updateField} className="flex flex-col gap-2">
+            <form
+              onChange={updateField}
+              className={"flex flex-col gap-2" + (isOwner ? "" : " opacity-50")}
+              inert={!isOwner}
+            >
               <input
                 type="text"
                 name="title"
