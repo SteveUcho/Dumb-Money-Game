@@ -211,10 +211,7 @@ function Lobby() {
           <Link to="/lobbies" className={["border-rh-red text-center", borderButton].join(" ")}>
             Leave Lobby
           </Link>
-          <Link
-            to={`/game/${params.lobbyId}`}
-            className={["border-rh-green text-center", borderButton].join(" ")}
-          >
+          <Link to="game" className={["border-rh-green text-center", borderButton].join(" ")}>
             Ready
           </Link>
         </div>

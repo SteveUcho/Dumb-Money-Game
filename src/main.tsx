@@ -9,12 +9,13 @@ import GamePage from "@/pages/Game";
 import HomePage from "@/pages/Home";
 import LobbiesPage from "@/pages/Lobbies";
 import RegisterPage from "@/pages/Register";
-import Lobby from "@/pages/Lobby";
+import GameLobby from "@/pages/GameLobby";
 import LoginPage from "./pages/Login";
 import AuthSettings from "./pages/AuthSettings";
 import NotFound from "./pages/404";
 import { SessionProvider } from "@/contexts/sessionProvider";
 import { SWRConfig } from "swr";
+import GameWrapper from "./pages/GameWrapper";
 
 const router = createBrowserRouter([
   {
@@ -57,7 +58,17 @@ const router = createBrowserRouter([
       },
       {
         path: "/lobby/:lobbyId",
-        element: <Lobby />,
+        element: <GameWrapper />,
+        children: [
+          {
+            index: true,
+            element: <GameLobby />,
+          },
+          {
+            path: "game",
+            element: <GamePage />,
+          },
+        ],
       },
     ],
   },
