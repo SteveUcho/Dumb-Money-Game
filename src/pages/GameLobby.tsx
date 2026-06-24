@@ -126,6 +126,7 @@ function Lobby() {
   };
 
   const isOwner = data?.ownerId === session?.identity?.id;
+  const chatMessages = messages.filter((message) => message.type === "chat");
 
   return (
     <div className="flex-1 min-h-0">
@@ -222,24 +223,11 @@ function Lobby() {
           <div className="flex-1 overflow-auto">
             {messages.length === 0 && !connectionFailed ? <p>Loading...</p> : null}
             {connectionFailed ? <p>Connection failed</p> : null}
-            {messages.map((message) => {
-              if (message.type === "chat") {
-                return (
-                  <p key={message.messageId}>
-                    {message.username}: {message.data.message}
-                  </p>
-                );
-              } else if (message.type === "system") {
-                return (
-                  <p key={message.messageId}>
-                    {message.username}: {message.data.username}
-                    {message.data.action === "player_joined" ? " joined the lobby" : null}
-                    {message.data.action === "player_left" ? " left the lobby" : null}
-                  </p>
-                );
-              }
-              return null;
-            })}
+            {chatMessages.map((message) => (
+              <p key={message.messageId}>
+                {message.username}: {message.data.message}
+              </p>
+            ))}
           </div>
         </div>
         <form onSubmit={handleSubmit} className="pt-2">
