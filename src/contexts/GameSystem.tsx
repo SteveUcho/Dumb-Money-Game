@@ -5,8 +5,10 @@ import type { WsMessage } from "@/types/GameSystemTypes";
 
 export const gameStateStore = createStore();
 
+type WsMessageHandler = (msg: WsMessage) => void;
+
 class SocketClient {
-  private readonly handlers = new Map<string, Set<Function>>();
+  private readonly handlers = new Map<string, Set<WsMessageHandler>>();
   ws: WebSocket | null = null;
 
   connect(url: string) {
@@ -28,7 +30,7 @@ class SocketClient {
     this.ws?.send(message);
   }
 
-  on(type: string, callback: Function) {
+  on(type: string, callback: WsMessageHandler) {
     if (!this.handlers.has(type)) {
       this.handlers.set(type, new Set());
     }
