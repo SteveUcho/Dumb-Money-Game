@@ -1,11 +1,13 @@
 import { Provider } from "jotai";
-import { gameStateStore } from "@/contexts/GameStateSystem";
 import { Outlet } from "react-router";
+import { gameStateStore, GameSystemProvider } from "@/contexts/GameSystem";
 
 function GameWrapper() {
   return (
     <Provider store={gameStateStore}>
-      <Outlet />
+      <GameSystemProvider>
+        <Outlet />
+      </GameSystemProvider>
     </Provider>
   );
 }

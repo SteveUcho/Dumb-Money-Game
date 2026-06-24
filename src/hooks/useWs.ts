@@ -1,27 +1,5 @@
+import type { ChatMessage, SystemMessage } from "@/types/GameSystemTypes";
 import { useEffect, useState } from "react";
-
-interface WsData {
-  type: string;
-  messageId: string;
-  playerId: string;
-  username: string;
-}
-
-interface ChatMessage extends WsData {
-  type: "chat";
-  data: {
-    message: string;
-  };
-}
-
-interface SystemMessage extends WsData {
-  type: "system";
-  data: {
-    action: "player_joined" | "player_left";
-    playerId: string;
-    username: string;
-  };
-}
 
 export function useWs(url: string | null) {
   const [conn, setConn] = useState<WebSocket | null>(null);

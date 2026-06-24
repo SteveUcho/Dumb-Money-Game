@@ -1,10 +1,11 @@
 import { useSession } from "@/hooks/useSession";
-import { useWs } from "@/hooks/useWs";
 import { borderButton, liquidGlass, liquidGlassScale, liquidGlassShadow } from "@/utils/classNames";
 import { debounce } from "es-toolkit";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
+import type { ChatMessage, SystemMessage } from "@/types/GameSystemTypes";
 import useSWR from "swr";
+import { socket } from "@/contexts/GameSystem";
 
 interface LobbyData {
   lobbyId: string;
@@ -56,20 +57,25 @@ function Lobby() {
   const params = useParams();
   const { session } = useSession();
   const [connectionFailed, setConnectionFailed] = useState(false);
-
-  const { conn, messages } = useWs(
-    params.lobbyId ? `ws://${import.meta.env.VITE_BACKEND_URL}/ws/lobby/${params.lobbyId}` : null,
-  );
+  const [messages, setMessages] = useState<(ChatMessage | SystemMessage)[]>([]);
   const { data, mutate } = useSWR<LobbyData>(
     params.lobbyId ? `/api/lobby/${params.lobbyId}` : null,
     {
       fallbackData: lobbyData,
     },
   );
+  const conn = socket;
+
+  useEffect(() => {
+    const cleanup = conn.on("chat", handleReceiveMessage);
+    return () => {
+      cleanup();
+    };
+  }, []);
 
   useEffect(() => {
     let timer = setTimeout(() => {
-      if (conn?.readyState !== WebSocket.OPEN) {
+      if (conn?.ws?.readyState !== WebSocket.OPEN) {
         setConnectionFailed(true);
       }
     }, 2000);
@@ -86,6 +92,10 @@ function Lobby() {
       conn.send(JSON.stringify({ type: "chat", message }));
       form.message.value = "";
     }
+  };
+
+  const handleReceiveMessage = (message: ChatMessage | SystemMessage) => {
+    setMessages((prev) => [...prev, message]);
   };
 
   const updateField = debounce(async (e: React.ChangeEvent<HTMLFormElement>) => {
