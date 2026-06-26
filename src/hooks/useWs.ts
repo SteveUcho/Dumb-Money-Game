@@ -1,9 +1,9 @@
-import type { ChatMessage, SystemMessage } from "@/types/GameSystemTypes";
+import type { WsMessage } from "@/types/GameSystemTypes";
 import { useEffect, useState } from "react";
 
 export function useWs(url: string | null) {
   const [conn, setConn] = useState<WebSocket | null>(null);
-  const [messages, setMessages] = useState<(ChatMessage | SystemMessage)[]>([]);
+  const [messages, setMessages] = useState<WsMessage[]>([]);
 
   useEffect(() => {
     if (!url) {
