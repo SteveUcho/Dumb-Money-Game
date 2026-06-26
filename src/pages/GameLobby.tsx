@@ -3,7 +3,7 @@ import { borderButton, liquidGlass, liquidGlassScale, liquidGlassShadow } from "
 import { debounce } from "es-toolkit";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
-import type { ChatMessage, SystemMessage } from "@/types/GameSystemTypes";
+import type { WsMessage } from "@/types/GameSystemTypes";
 import useSWR from "swr";
 import { socket } from "@/contexts/GameSystem";
 
@@ -57,7 +57,7 @@ function Lobby() {
   const params = useParams();
   const { session } = useSession();
   const [connectionFailed, setConnectionFailed] = useState(false);
-  const [messages, setMessages] = useState<(ChatMessage | SystemMessage)[]>([]);
+  const [messages, setMessages] = useState<WsMessage[]>([]);
   const { data, mutate } = useSWR<LobbyData>(
     params.lobbyId ? `/api/lobby/${params.lobbyId}` : null,
     {
@@ -67,9 +67,11 @@ function Lobby() {
   const conn = socket;
 
   useEffect(() => {
-    const cleanup = conn.on("chat", handleReceiveMessage);
+    const chatCleanup = conn.on("chat", handleMessage);
+    const lobbyCleanup = conn.on("lobby.update", handleLobbyUpdate);
     return () => {
-      cleanup();
+      chatCleanup();
+      lobbyCleanup();
     };
   }, []);
 
@@ -94,8 +96,16 @@ function Lobby() {
     }
   };
 
-  const handleReceiveMessage = (message: ChatMessage | SystemMessage) => {
+  const handleMessage = (message: WsMessage) => {
     setMessages((prev) => [...prev, message]);
+  };
+
+  const handleLobbyUpdate = (message: WsMessage) => {
+    const newLobby = { ...data } as LobbyData;
+    for (const [key, value] of Object.entries(message.data)) {
+      (newLobby as any)[key] = value;
+    }
+    mutate(newLobby);
   };
 
   const updateField = debounce(async (e: React.ChangeEvent<HTMLFormElement>) => {
@@ -135,8 +145,20 @@ function Lobby() {
     }
   };
 
+  const promotePlayer = (playerId: string) => async () => {
+    try {
+      const res = await fetch(`/api/lobby/${params.lobbyId}/promote-player/${playerId}`, {
+        method: "PUT",
+      });
+      if (!res.ok) {
+        console.error("Failed to promote player:", res.statusText);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const isOwner = data?.ownerId === session?.identity?.id;
-  const chatMessages = messages.filter((message) => message.type === "chat");
 
   return (
     <div className="flex-1 min-h-0">
@@ -169,7 +191,12 @@ function Lobby() {
                     >
                       Kick
                     </button>
-                    <button className={[borderButton, "text-amber-500"].join(" ")}>C</button>
+                    <button
+                      className={[borderButton, "text-amber-500"].join(" ")}
+                      onClick={promotePlayer(player.id)}
+                    >
+                      C
+                    </button>
                   </div>
                 )}
               </div>
@@ -233,7 +260,7 @@ function Lobby() {
           <div className="flex-1 overflow-auto">
             {messages.length === 0 && !connectionFailed ? <p>Loading...</p> : null}
             {connectionFailed ? <p>Connection failed</p> : null}
-            {chatMessages.map((message) => (
+            {messages.map((message) => (
               <p key={message.messageId}>
                 {message.username}: {message.data.message}
               </p>

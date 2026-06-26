@@ -14,11 +14,14 @@ class SocketClient {
   connect(url: string) {
     this.ws = new WebSocket(url);
     this.ws.onmessage = (event) => {
-      const msg = JSON.parse(event.data) as WsMessage;
+      const msgs = (event.data as string)
+        .split("\n")
+        .map((line) => JSON.parse(line)) as WsMessage[];
 
-      const listeners = this.handlers.get(msg.type);
-
-      listeners?.forEach((fn) => fn(msg));
+      msgs.forEach((msg) => {
+        const listeners = this.handlers.get(msg.type);
+        listeners?.forEach((fn) => fn(msg));
+      });
     };
   }
 

@@ -1,24 +1,7 @@
-interface WsData {
+export interface WsMessage {
   type: string;
   messageId: string;
   playerId: string;
   username: string;
+  data: Record<string, any>;
 }
-
-export interface ChatMessage extends WsData {
-  type: "chat";
-  data: {
-    message: string;
-  };
-}
-
-export interface SystemMessage extends WsData {
-  type: "system";
-  data: {
-    action: string;
-    playerId: string;
-    username: string;
-  };
-}
-
-export type WsMessage = ChatMessage | SystemMessage;
